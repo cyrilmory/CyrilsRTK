@@ -1,0 +1,8 @@
+package "rtkspectraldiff"
+purpose ""
+
+option "verbose"     v "Verbose execution"                                     flag   off
+option "config"      - "Config file"                                           string no
+option "inputImage1"       i "Input volume 1"              string
+option "inputImage2"       j "Input volume 2"              string
+option "outputName" 	   o "Outpout name" 		    string

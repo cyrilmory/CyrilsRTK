@@ -1,0 +1,9 @@
+package "rtkspectralforward"
+purpose ""
+
+option "verbose"     v "Verbose execution"                                     flag   off
+option "config"      - "Config file"                                           string no
+option "outputDir"      o "Output directory name"                                      string yes
+option "inputImage"       i "Input volume"              string multiple yes
+option "inputPolynomial" p "Input Polynomial" string multiple yes
+option "degree" d "Polynomial degree" double
