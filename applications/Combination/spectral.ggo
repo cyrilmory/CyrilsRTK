@@ -1,7 +1,0 @@
-package "rtkspectralcombination"
-purpose ""
-
-option "verbose"     v "Verbose execution"                                     flag   off
-option "config"      - "Config file"                                           string no
-option "inputImage"       i "Input volume 1"              string multiple yes
-option "outputName" 	   o "Outpout name" 		    string
