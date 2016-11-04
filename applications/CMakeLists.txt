@@ -66,6 +66,7 @@ add_subdirectory(rtkgaincorrection)
 add_subdirectory(rtkdecomposespectralprojections)
 add_subdirectory(rtkdecomposedualenergyprojections)
 add_subdirectory(rtkjointspectralreconstruction)
+add_subdirectory(rtkcalibrationprojectionstopolynomialcoefficients)
 
 #Polynomial dual energy decomposition
 add_subdirectory(Decomposition)

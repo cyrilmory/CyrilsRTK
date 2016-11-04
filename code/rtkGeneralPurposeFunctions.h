@@ -79,6 +79,32 @@ ReadSignalFile(std::string filename)
   return signalVector;
 }
 
+std::vector< std::vector<double> >
+ReadDoubleTableFile(std::string filename)
+{
+  std::vector< std::vector<double> > doubleTable;
+  std::ifstream is( filename.c_str() );
+  if( !is.is_open() )
+    {
+    itkGenericExceptionMacro(<< "Could not open signal file " << filename);
+    }
+
+  while(!is.eof())
+    {
+    std::string str;
+    std::getline(is, str);
+    std::stringstream ss(str);
+    std::vector<double> row;
+    double value;
+    while(ss >> value)
+      row.push_back(value);
+
+    if (row.size() > 0)
+      doubleTable.push_back(row);
+    }
+  return doubleTable;
+}
+
 template< typename ImageType >
 void
 WriteImage(typename ImageType::Pointer input, std::string name)
