@@ -162,7 +162,7 @@ CalibrationProjectionsToPolynomialCoefficientsImageFilter<InputImageType, Output
 #if !(ITK_VERSION_MAJOR > 4 || (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 4))
   if (this->GetNumberOfThreads() > 1)
     {
-    itkWarningMacro(<< "LastDimensionL0GradientDenoisingImageFilter cannot use multiple threads with ITK versions older than v4.4. Reverting to single thread behavior");
+    itkWarningMacro(<< "This filter cannot use multiple threads with ITK versions older than v4.4. Reverting to single thread behavior");
     this->SetNumberOfThreads(1);
     }
 #endif

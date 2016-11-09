@@ -21,7 +21,6 @@
 
 #include <itkImageToImageFilter.h>
 
-#include "rtkCalibrationProjectionsToPolynomialCoefficientsImageFilter.h"
 #include "rtkPolynomialCalculator.h"
 
 #include <vnl_sparse_matrix.h>
