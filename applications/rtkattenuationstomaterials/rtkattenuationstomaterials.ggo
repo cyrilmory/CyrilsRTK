@@ -1,0 +1,10 @@
+package "rtkattenuationstomaterials"
+purpose "Computes material projections from pre-determined polynomial applied to measured linear attenuations"
+
+option "verbose"     v "Verbose execution"                                                 flag                         off
+option "config"      - "Config file"                                                       string                       no
+option "output"      o "Output file name (materials projections)"                          string                       yes
+option "input"       i "Measured projections file name"                                    string                       yes
+option "coeffs"      c "Polynomial coefficients file name"                                 string                       yes
+option "degree"      d "Polynomial degree"                                                 double                       no default="2"
+option "nenergies"   n "Number of energies contained in the input projection stack"        double                       no default="2"

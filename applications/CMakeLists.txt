@@ -66,12 +66,11 @@ add_subdirectory(rtkgaincorrection)
 add_subdirectory(rtkdecomposespectralprojections)
 add_subdirectory(rtkdecomposedualenergyprojections)
 add_subdirectory(rtkjointspectralreconstruction)
-add_subdirectory(rtkcalibrationprojectionstopolynomialcoefficients)
 
 #Polynomial dual energy decomposition
-add_subdirectory(Decomposition)
+add_subdirectory(rtkcalibrationprojectionstopolynomialcoefficients)
+add_subdirectory(rtkattenuationstomaterials)
 add_subdirectory(Error)
-add_subdirectory(Forward)
 add_subdirectory(Diff)
 
 #All the executables below are meant to create RTK ThreeDCircularProjectionGeometry files
