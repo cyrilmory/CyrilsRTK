@@ -1,9 +1,0 @@
-package "rtkspectralerror"
-purpose ""
-
-option "verbose"     v "Verbose execution"                                     flag   off
-option "config"      - "Config file"                                           string no
-option "inputImage"       i "Input volume"              string multiple yes
-option "inputThickness" t "Input Thickness" string
-option "inputPolynomial" p "Input Polynimal" string
-option "degree" d "Polynomial degree" double
