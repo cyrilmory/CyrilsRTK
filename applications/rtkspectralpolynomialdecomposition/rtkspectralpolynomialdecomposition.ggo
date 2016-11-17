@@ -1,4 +1,4 @@
-package "rtkattenuationstomaterials"
+package "rtkspectralpolynomialdecomposition"
 purpose "Computes material projections from pre-determined polynomial applied to measured linear attenuations"
 
 option "verbose"     v "Verbose execution"                                                 flag                         off

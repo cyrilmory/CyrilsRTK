@@ -16,7 +16,7 @@
  *
  *=========================================================================*/
 
-#include "rtkcalibrationprojectionstopolynomialcoefficients_ggo.h"
+#include "rtkspectralpolynomialcalibration_ggo.h"
 #include "rtkGgoFunctions.h"
 #include "rtkConfiguration.h"
 #include "rtkMacro.h"
@@ -29,7 +29,7 @@
 
 int main(int argc, char * argv[])
 {
-  GGO(rtkcalibrationprojectionstopolynomialcoefficients, args_info);
+  GGO(rtkspectralpolynomialcalibration, args_info);
 
   typedef float PixelValueType;
   const unsigned int Dimension = 3;

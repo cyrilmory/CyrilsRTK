@@ -1,4 +1,4 @@
-package "rtkcalibrationprojectionstopolynomialcoefficients"
+package "rtkspectralpolynomialcalibration"
 purpose "Computes the coefficients of the decomposition polynomials (one per material) from calibration measurements"
 
 option "verbose"     v "Verbose execution"                                                 flag                         off

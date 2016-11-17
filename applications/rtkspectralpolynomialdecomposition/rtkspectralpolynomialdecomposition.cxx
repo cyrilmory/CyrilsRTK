@@ -16,7 +16,7 @@
  *
  *=========================================================================*/
 
-#include "rtkattenuationstomaterials_ggo.h"
+#include "rtkspectralpolynomialdecomposition_ggo.h"
 #include "rtkGgoFunctions.h"
 #include "rtkConfiguration.h"
 #include "rtkMacro.h"
@@ -29,7 +29,7 @@
 
 int main(int argc, char * argv[])
 {
-  GGO(rtkattenuationstomaterials, args_info);
+  GGO(rtkspectralpolynomialdecomposition, args_info);
 
   typedef float PixelValueType;
   const unsigned int Dimension = 3;
