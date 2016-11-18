@@ -43,16 +43,6 @@ int main(int argc, char * argv[])
   typedef VectorCalibrationProjectionType PolynomialCoefficientsImageType;
   typedef itk::ImageFileWriter<PolynomialCoefficientsImageType> PolynomialCoefficientWriterType;
 
-  // Read input calibration projections
-  CalibrationProjectionReaderType::Pointer calibrationProjectionReader = CalibrationProjectionReaderType::New();
-  calibrationProjectionReader->SetFileName( args_info.input_arg );
-  calibrationProjectionReader->Update();
-
-  // Convert the input image into a vector image
-  ImageToVectorImageType::Pointer imageToVectorImage = ImageToVectorImageType::New();
-  imageToVectorImage->SetInput(calibrationProjectionReader->GetOutput());
-  imageToVectorImage->SetNumberOfChannels(args_info.nmaterials_arg);
-
   // Read material thicknesses
   std::vector<std::vector<double> > thicknessesTable = rtk::ReadDoubleTableFile(args_info.thicknesses_arg);
   vnl_matrix<double> thicknessesMatrix (thicknessesTable.size(), thicknessesTable[0].size());
@@ -63,6 +53,17 @@ int main(int argc, char * argv[])
       thicknessesMatrix.put(row, col, thicknessesTable[row][col]);
       }
     }
+
+  // Read input calibration projections
+  CalibrationProjectionReaderType::Pointer calibrationProjectionReader = CalibrationProjectionReaderType::New();
+  calibrationProjectionReader->SetFileName( args_info.input_arg );
+  calibrationProjectionReader->Update();
+
+  // Convert the input image into a vector image
+  ImageToVectorImageType::Pointer imageToVectorImage = ImageToVectorImageType::New();
+  imageToVectorImage->SetInput(calibrationProjectionReader->GetOutput());
+  unsigned int NumberOfEnergies = calibrationProjectionReader->GetOutput()->GetLargestPossibleRegion().GetSize()[Dimension - 1] / thicknessesMatrix.rows();
+  imageToVectorImage->SetNumberOfChannels(NumberOfEnergies);
 
   // Create and set the filter
   typedef rtk::CalibrationProjectionsToPolynomialCoefficientsImageFilter<VectorCalibrationProjectionType, PolynomialCoefficientsImageType> CalibrationFilterType;

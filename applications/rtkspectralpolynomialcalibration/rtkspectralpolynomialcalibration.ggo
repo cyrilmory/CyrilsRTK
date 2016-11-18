@@ -7,4 +7,3 @@ option "output"      o "Output file name (polynomial coefficients)"             
 option "input"       i "Calibration projections"                                           string                       yes
 option "thicknesses" t "Material thicknesses file"                                         string                       yes
 option "degree"      d "Polynomial degree"                                                 double                       no default="2"
-option "nmaterials"  n "Number of materials in the calibration projections stack"          int                          yes

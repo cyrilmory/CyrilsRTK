@@ -71,8 +71,13 @@ CalibrationProjectionsToPolynomialCoefficientsImageFilter<InputImageType, Output
 ::GenerateOutputInformation()
 {
   m_NumberOfVariables = this->GetInput()->GetVectorLength(); //Should be two for dual energy
+  m_NumberOfMaterials = m_ThicknessesMatrix.cols();
   this->UpdateNumberOfCoefficients();
-  m_NumberOfThicknessesCombinations = this->GetInput()->GetLargestPossibleRegion().GetSize(InputImageType::ImageDimension - 1);
+  m_NumberOfThicknessesCombinations = m_ThicknessesMatrix.rows();
+  if (m_NumberOfThicknessesCombinations != this->GetInput()->GetLargestPossibleRegion().GetSize(InputImageType::ImageDimension - 1))
+    itkGenericExceptionMacro( << "Number of rows in the thicknesses matrix, i.e. " << m_NumberOfThicknessesCombinations
+                              << " is inconsistent with the size of the input image along the last dimension, i.e. "
+                              << this->GetInput()->GetLargestPossibleRegion().GetSize(InputImageType::ImageDimension - 1))
 
   typename OutputImageType::RegionType largest = this->GetInput()->GetLargestPossibleRegion();
   largest.SetSize(OutputImageType::ImageDimension - 1, m_NumberOfCoefficients);
