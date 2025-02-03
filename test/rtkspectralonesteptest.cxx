@@ -46,6 +46,8 @@ main(int argc, char * argv[])
 
   using MaterialProjectionsType = itk::VectorImage<DataType, Dimension>;
   using vIncidentSpectrum = itk::VectorImage<DataType, Dimension - 1>;
+  using VectorImageType = typename itk::VectorImage<DataType, Dimension>;
+
 #ifdef RTK_USE_CUDA
   using MaterialVolumeType = itk::CudaImage<MaterialPixelType, Dimension>;
   using PhotonCountsType = itk::CudaImage<PhotonCountsPixelType, Dimension>;
@@ -66,6 +68,10 @@ main(int argc, char * argv[])
   using vIncidentSpectrumReaderType = itk::ImageFileReader<vIncidentSpectrum>;
   using DetectorResponseReaderType = itk::ImageFileReader<DetectorResponseImageType>;
   using MaterialAttenuationsReaderType = itk::ImageFileReader<MaterialAttenuationsImageType>;
+
+  // Cast filters to convert between vector image types
+  using CastMaterialVolumesFilterType = itk::CastImageFilter<MaterialVolumeType, VectorImageType>;
+  using CastPhotonCountsFilterType = itk::CastImageFilter<VectorImageType, PhotonCountsType>;
 
   // Read all inputs
   IncidentSpectrumReaderType::Pointer incidentSpectrumReader = IncidentSpectrumReaderType::New();
@@ -250,18 +256,8 @@ main(int argc, char * argv[])
 
   // Convert the itk::VectorImage<> returned by "forward" into
   // an itk::Image<itk::Vector<>>
-  using IndexSelectionType = itk::VectorIndexSelectionCastImageFilter<vPhotonCountsType, SingleComponentImageType>;
-  IndexSelectionType::Pointer selectors[nBins];
-  using ComposePhotonCountsType = itk::ComposeImageFilter<SingleComponentImageType, PhotonCountsType>;
-  ComposePhotonCountsType::Pointer composePhotonCounts = ComposePhotonCountsType::New();
-  for (unsigned int bin = 0; bin < nBins; bin++)
-  {
-    selectors[bin] = IndexSelectionType::New();
-    selectors[bin]->SetIndex(bin);
-    selectors[bin]->SetInput(forward->GetOutput());
-    composePhotonCounts->SetInput(bin, selectors[bin]->GetOutput());
-  }
-  composePhotonCounts->Update();
+  typename CastPhotonCountsFilterType::Pointer castPhotonCounts = CastPhotonCountsFilterType::New();
+  castPhotonCounts->SetInput(forward->GetOutput());
 
   // Read the material attenuations image as a matrix
   MaterialAttenuationsImageType::IndexType indexMat;
@@ -286,7 +282,7 @@ main(int argc, char * argv[])
   MechlemType::Pointer mechlemOneStep = MechlemType::New();
   mechlemOneStep->SetForwardProjectionFilter(MechlemType::FP_JOSEPH); // Joseph
   mechlemOneStep->SetInputMaterialVolumes(materialVolumeSource->GetOutput());
-  mechlemOneStep->SetInputPhotonCounts(composePhotonCounts->GetOutput());
+  mechlemOneStep->SetInputPhotonCounts(castPhotonCounts->GetOutput());
   mechlemOneStep->SetInputSpectrum(incidentSpectrumReader->GetOutput());
   mechlemOneStep->SetBinnedDetectorResponse(drm);
   mechlemOneStep->SetMaterialAttenuations(materialAttenuationsMatrix);
@@ -335,6 +331,23 @@ main(int argc, char * argv[])
   CheckVectorImageQuality<MaterialVolumeType>(mechlemOneStep->GetOutput(), composeVols->GetOutput(), 0.08, 23, 2.0);
   std::cout << "\n\nTest PASSED! " << std::endl;
 #endif
+
+#ifdef RTK_USE_CUDA
+  std::cout << "\n\n****** Case 5: CUDA voxel-based Backprojector, 4 subsets, with regularization, itkVectorImage inputs ******" << std::endl;
+#else
+  std::cout << "\n\n****** Case 4: Voxel-based Backprojector, 4 subsets, with regularization, itkVectorImage inputs ******" << std::endl;
+#endif
+  //Add a cast to itkVectorImage, to test the overloaded SetInputMaterialVolumes method
+  typename CastMaterialVolumesFilterType::Pointer castMaterials = CastMaterialVolumesFilterType::New();
+  castMaterials->SetInput(materialVolumeSource->GetOutput());
+  mechlemOneStep->SetInputMaterialVolumes(castMaterials->GetOutput());
+
+  // Remove the cast from itkVectorImage, to test the overloaded SetInputPhotonCounts method
+  mechlemOneStep->SetInputPhotonCounts(forward->GetOutput());
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(mechlemOneStep->Update());
+
+  CheckVectorImageQuality<MaterialVolumeType>(mechlemOneStep->GetOutput(), composeVols->GetOutput(), 0.08, 23, 2.0);
+  std::cout << "\n\nTest PASSED! " << std::endl;
 
   return EXIT_SUCCESS;
 }

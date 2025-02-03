@@ -33,6 +33,8 @@
 #include <itkAddImageFilter.h>
 #include <itkMultiplyImageFilter.h>
 
+#include <itkCastImageFilter.h>
+
 #ifdef RTK_USE_CUDA
 #  include "rtkCudaWeidingerForwardModelImageFilter.h"
 #endif
@@ -176,6 +178,9 @@ public:
   static constexpr unsigned int nMaterials = TOutputImage::PixelType::Dimension;
   using dataType = typename TOutputImage::PixelType::ValueType;
 
+  /** Alternative type for the input materials volume and the input photon counts **/
+  using VectorImageType = typename itk::VectorImage<dataType, TOutputImage::ImageDimension>;
+
   /** SFINAE type alias, depending on whether a CUDA image is used. */
   using CPUOutputImageType = typename itk::Image<typename TOutputImage::PixelType, TOutputImage::ImageDimension>;
 #ifdef RTK_USE_CUDA
@@ -223,6 +228,8 @@ public:
 
 #if !defined(ITK_WRAPPING_PARSER)
   /** Filter type alias */
+  using CastMaterialVolumesFilterType = itk::CastImageFilter<VectorImageType, TOutputImage>;
+  using CastPhotonCountsFilterType = itk::CastImageFilter<VectorImageType, TPhotonCounts>;
   using ExtractPhotonCountsFilterType = itk::ExtractImageFilter<TPhotonCounts, TPhotonCounts>;
   using AddFilterType = itk::AddImageFilter<GradientsImageType>;
   using SingleComponentForwardProjectionFilterType =
@@ -264,7 +271,11 @@ public:
   void
   SetInputMaterialVolumes(const TOutputImage * materialVolumes);
   void
+  SetInputMaterialVolumes(const VectorImageType * materialVolumes);
+  void
   SetInputPhotonCounts(const TPhotonCounts * photonCounts);
+  void
+  SetInputPhotonCounts(const VectorImageType * photonCounts);
   void
   SetInputSpectrum(const TSpectrum * spectrum);
   void
@@ -305,6 +316,8 @@ protected:
 
 #if !defined(ITK_WRAPPING_PARSER)
   /** Member pointers to the filters used internally (for convenience)*/
+  typename CastMaterialVolumesFilterType::Pointer                  m_CastMaterialVolumesFilter;
+  typename CastPhotonCountsFilterType::Pointer                     m_CastPhotonCountsFilter;
   typename ExtractPhotonCountsFilterType::Pointer                  m_ExtractPhotonCountsFilter;
   typename AddFilterType::Pointer                                  m_AddGradients;
   typename SingleComponentForwardProjectionFilterType::Pointer     m_SingleComponentForwardProjectionFilter;

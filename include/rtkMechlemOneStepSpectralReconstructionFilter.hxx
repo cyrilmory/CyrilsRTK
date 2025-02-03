@@ -41,6 +41,8 @@ MechlemOneStepSpectralReconstructionFilter<TOutputImage, TPhotonCounts, TSpectru
   m_RegularizationRadius.Fill(0);
 
   // Create the filters
+  m_CastMaterialVolumesFilter = CastMaterialVolumesFilterType::New();
+  m_CastPhotonCountsFilter = CastPhotonCountsFilterType::New();
   m_ExtractPhotonCountsFilter = ExtractPhotonCountsFilterType::New();
   m_AddGradients = AddFilterType::New();
   m_AddHessians = AddMatrixAndDiagonalFilterType::New();
@@ -83,10 +85,28 @@ MechlemOneStepSpectralReconstructionFilter<TOutputImage, TPhotonCounts, TSpectru
 
 template <class TOutputImage, class TPhotonCounts, class TSpectrum>
 void
+MechlemOneStepSpectralReconstructionFilter<TOutputImage, TPhotonCounts, TSpectrum>::SetInputMaterialVolumes(
+  const VectorImageType * variableLengthVectorMaterialVolumes)
+{
+  m_CastMaterialVolumesFilter->SetInput(variableLengthVectorMaterialVolumes);
+  this->SetNthInput(0, const_cast<TOutputImage *>(m_CastMaterialVolumesFilter->GetOutput()));
+}
+
+template <class TOutputImage, class TPhotonCounts, class TSpectrum>
+void
 MechlemOneStepSpectralReconstructionFilter<TOutputImage, TPhotonCounts, TSpectrum>::SetInputPhotonCounts(
   const TPhotonCounts * photonCounts)
 {
   this->SetNthInput(1, const_cast<TPhotonCounts *>(photonCounts));
+}
+
+template <class TOutputImage, class TPhotonCounts, class TSpectrum>
+void
+MechlemOneStepSpectralReconstructionFilter<TOutputImage, TPhotonCounts, TSpectrum>::SetInputPhotonCounts(
+  const VectorImageType * variableLengthVectorPhotonCounts)
+{
+  m_CastPhotonCountsFilter->SetInput(variableLengthVectorPhotonCounts);
+  this->SetNthInput(1, const_cast<TPhotonCounts *>(m_CastPhotonCountsFilter->GetOutput()));
 }
 
 template <class TOutputImage, class TPhotonCounts, class TSpectrum>
