@@ -48,6 +48,9 @@ main(int argc, char * argv[])
   using MaterialAttenuationsImageType = itk::Image<PixelValueType, Dimension - 1>;
   using MaterialAttenuationsReaderType = itk::ImageFileReader<MaterialAttenuationsImageType>;
 
+  // Cast filters to convert between vector image types
+  using CastDecomposedProjectionFilterType = itk::CastImageFilter<DecomposedProjectionType, itk::Image<itk::Vector<PixelValueType, 3>, Dimension>>;
+
   // Read all inputs
   IncidentSpectrumReaderType::Pointer incidentSpectrumReader = IncidentSpectrumReaderType::New();
   incidentSpectrumReader->SetFileName(argv[1]);
@@ -184,7 +187,12 @@ main(int argc, char * argv[])
   forward->SetMaterialAttenuations(materialAttenuationsReader->GetOutput());
   forward->SetThresholds(thresholds);
   forward->SetIsSpectralCT(true);
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(forward->Update())
 
+  //Add a cast to itkVectorImage, to test the overloaded SetInputDecomposedProjections method
+  typename CastDecomposedProjectionFilterType::Pointer castDecomposedProjections = CastDecomposedProjectionFilterType::New();
+  castDecomposedProjections->SetInput(decomposed);
+  forward->SetInputDecomposedProjections(castDecomposedProjections->GetOutput());
   TRY_AND_EXIT_ON_ITK_EXCEPTION(forward->Update())
 
   // Generate a set of decomposed projections as input for the simplex

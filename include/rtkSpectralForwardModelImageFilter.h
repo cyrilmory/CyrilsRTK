@@ -23,6 +23,7 @@
 #include "rtkDualEnergyNegativeLogLikelihood.h"
 
 #include <itkInPlaceImageFilter.h>
+#include <itkCastImageFilter.h>
 
 namespace rtk
 {
@@ -64,6 +65,7 @@ public:
   using ThresholdsType = itk::VariableLengthVector<double>;
   using DetectorResponseType = vnl_matrix<double>;
   using MaterialAttenuationsType = vnl_matrix<double>;
+  using DecomposedProjectionsDataType = typename DecomposedProjectionsType::PixelType::ValueType;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -87,7 +89,12 @@ public:
 
   /** Set/Get the input material-decomposed stack of projections (only used for initialization) */
   void
-  SetInputDecomposedProjections(const DecomposedProjectionsType * DecomposedProjections);
+  SetInputDecomposedProjections(const typename itk::ImageBase<DecomposedProjectionsType::ImageDimension> * DecomposedProjections);
+  template <unsigned int VNumberOfMaterials>
+  void
+  SetInputFixedVectorLengthDecomposedProjections(const itk::Image<itk::Vector<DecomposedProjectionsDataType, VNumberOfMaterials>,
+                                                                  DecomposedProjectionsType::ImageDimension> * DecomposedProjections);
+
   typename DecomposedProjectionsType::ConstPointer
   GetInputDecomposedProjections();
 
