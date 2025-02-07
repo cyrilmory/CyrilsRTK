@@ -67,11 +67,7 @@ public:
   itkNewMacro(Self);
 
   /** Runtime information support. */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(PolynomialGainCorrectionImageFilter);
-#else
-  itkTypeMacro(PolynomialGainCorrectionImageFilter, itk::ImageToImageFilter);
-#endif
 
   /** Dark image, 2D same size of one input projection */
   void
@@ -106,7 +102,7 @@ protected:
   InputImagePointer  m_DarkImage;           // Dark image
   OutputImagePointer m_GainImage;           // Gain coefficients (A matrix)
   OutputSizeType     m_GainSize;            // Gain map size
-};                                          // end of class
+}; // end of class
 
 } // namespace rtk
 

@@ -60,18 +60,14 @@ public:
   using DisplacementType = typename DisplacementFieldType::PixelType;
 
   /** Point type */
-  using CoordRepType = double;
-  using PointType = itk::Point<CoordRepType, Self::ImageDimension>;
+  using CoordinateType = double;
+  using PointType = itk::Point<CoordinateType, Self::ImageDimension>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(ForwardWarpImageFilter);
-#else
-  itkTypeMacro(ForwardWarpImageFilter, Superclass);
-#endif
 
 protected:
   ForwardWarpImageFilter();
@@ -82,8 +78,10 @@ protected:
 
   // Redefine stuff that is private in the Superclass
   void
-                                   Protected_EvaluateDisplacementAtPhysicalPoint(const PointType & point, DisplacementType & output);
-  bool                             m_Protected_DefFieldSizeSame;
+  Protected_EvaluateDisplacementAtPhysicalPoint(const PointType & point, DisplacementType & output);
+
+  bool m_Protected_DefFieldSizeSame;
+
   typename TOutputImage::IndexType m_Protected_StartIndex;
   typename TOutputImage::IndexType m_Protected_EndIndex;
 };

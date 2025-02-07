@@ -62,11 +62,7 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods) */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(SingularValueThresholdImageFilter);
-#else
-  itkTypeMacro(SingularValueThresholdImageFilter, ImageToImageFilter);
-#endif
 
   /** Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same. */
@@ -93,12 +89,10 @@ public:
   /** Superclass type alias. */
   using OutputImageRegionType = typename Superclass::OutputImageRegionType;
 
-#ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(InputHasNumericTraitsCheck, (itk::Concept::HasNumericTraits<typename InputPixelType::ValueType>));
   itkConceptMacro(RealTypeHasNumericTraitsCheck, (itk::Concept::HasNumericTraits<RealType>));
   /** End concept checking */
-#endif
 
   itkGetMacro(Threshold, TRealType);
   itkSetMacro(Threshold, TRealType);

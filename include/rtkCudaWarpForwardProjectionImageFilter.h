@@ -66,11 +66,7 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-#  ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(CudaWarpForwardProjectionImageFilter);
-#  else
-  itkTypeMacro(CudaWarpForwardProjectionImageFilter, ForwardProjectionImageFilter);
-#  endif
 
   /** Input projection stack */
   void
@@ -96,7 +92,7 @@ public:
 
 protected:
   CudaWarpForwardProjectionImageFilter();
-  ~CudaWarpForwardProjectionImageFilter(){};
+  ~CudaWarpForwardProjectionImageFilter() {};
 
   virtual void
   GenerateInputRequestedRegion();
