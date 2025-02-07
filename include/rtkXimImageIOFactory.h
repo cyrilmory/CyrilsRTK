@@ -16,8 +16,8 @@
  *
  *=========================================================================*/
 
-//#ifndef ITKHNDIMAGEIOFACTORY_H
-//#define ITKHNDIMAGEIOFACTORY_H
+// #ifndef ITKHNDIMAGEIOFACTORY_H
+// #define ITKHNDIMAGEIOFACTORY_H
 
 #ifndef rtkXimImageIOFactory_h
 #define rtkXimImageIOFactory_h
@@ -69,11 +69,7 @@ public:
   itkFactorylessNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(XimImageIOFactory);
-#else
-  itkTypeMacro(XimImageIOFactory, itk::ObjectFactoryBase);
-#endif
 
   /** Register one factory of this type  */
   static void

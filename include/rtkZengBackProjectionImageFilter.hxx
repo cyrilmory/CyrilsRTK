@@ -180,8 +180,8 @@ ZengBackProjectionImageFilter<TInputImage, TOutputImage>::GenerateOutputInformat
   const typename OuputCPUImageType::PointType originProjection = this->GetInput(1)->GetOrigin();
 
   // Find the center of the volume
-  using CoordRepType = typename PointType ::ValueType;
-  using ContinuousIndexType = itk::ContinuousIndex<CoordRepType, InputImageDimension>;
+  using CoordinateType = typename PointType ::ValueType;
+  using ContinuousIndexType = itk::ContinuousIndex<CoordinateType, InputImageDimension>;
   using ContinuousIndexValueType = typename ContinuousIndexType::ValueType;
   ContinuousIndexType centerIndex;
 
@@ -193,7 +193,7 @@ ZengBackProjectionImageFilter<TInputImage, TOutputImage>::GenerateOutputInformat
 
   using ValueType = typename PointType::ValueType;
   m_centerVolume =
-    this->GetInput(0)->template TransformContinuousIndexToPhysicalPoint<CoordRepType, ValueType>(centerIndex);
+    this->GetInput(0)->template TransformContinuousIndexToPhysicalPoint<CoordinateType, ValueType>(centerIndex);
 
   PointType centerRotation;
   centerRotation.Fill(0);
@@ -251,10 +251,9 @@ ZengBackProjectionImageFilter<TInputImage, TOutputImage>::GenerateOutputInformat
 
     // Set Lambda function
     auto customLambda = [spacingVolume](const typename OuputCPUImageType::PixelType & input1) ->
-      typename OuputCPUImageType::PixelType
-    {
-      return static_cast<typename OuputCPUImageType::PixelType>(std::exp(-spacingVolume[2] * input1));
-    };
+      typename OuputCPUImageType::PixelType {
+        return static_cast<typename OuputCPUImageType::PixelType>(std::exp(-spacingVolume[2] * input1));
+      };
     m_CustomUnaryFilter->SetFunctor(customLambda);
     m_CustomUnaryFilter->SetInput(this->GetInput(2));
 

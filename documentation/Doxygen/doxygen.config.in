@@ -2106,7 +2106,7 @@ INCLUDE_FILE_PATTERNS  =
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 PREDEFINED             = "itkNotUsed(x)=" \
-                         "itkStaticConstMacro(name,type,value)=static constexpr type name = value" \
+                         "static constexpr type name = value=static constexpr type name = value" \
                          "itkSetInputMacro(name, type, number)=                   virtual void Set##name##Input(const type *_arg);                   virtual void SetInput##number(const type *_arg);" \
                          "itkGetInputMacro(name, type, number)=                   virtual const type * Get##name##Input() const;                   virtual const type * GetInput##number() const;" \
                          "itkSetMacro(name,type)=                   virtual void Set##name (type _arg);" \
@@ -2148,9 +2148,9 @@ PREDEFINED             = "itkNotUsed(x)=" \
                          "itkSimpleNewMacro(type)=             static Pointer New();" \
                          "itkCreateAnotherMacro(type)=         virtual::itk::LightObject::Pointer CreateAnother() const;" \
                          "itkFactorylessNewMacro(x)=                   static Pointer New();                   virtual ::itk::LightObject::Pointer CreateAnother() const;" \
-                         "itkTypeMacro(thisClass,superclass)=                   virtual const char *GetNameOfClass() const;" \
+                         "itkOverrideGetNameOfClassMacro(thisClass)=         const char * GetNameOfClass() const override;" \
                          "itkEventMacro(thisClass,superclass)=                   class thisClass : public superclass {};" \
-                         "itkDeclareExceptionMacro(newexcp,parentexcp,whatmessage)=         namespace itk {         class newexcp : public parentexcp {        public:       newexcp( const char *file, unsigned int lineNumber ) :        parentexcp( file, lineNumber )          { this->SetDescription( whatmessage ); }          newexcp( const std::string & file, unsigned int lineNumber ) :          parentexcp( file, lineNumber )          { this->SetDescription( whatmessage ); }          itkTypeMacro( newexcp, , parentexcp);         };        }" \
+                         "itkDeclareExceptionMacro(newexcp,parentexcp,whatmessage)=         namespace itk {         class newexcp : public parentexcp {        public:       newexcp( const char *file, unsigned int lineNumber ) :        parentexcp( file, lineNumber )          { this->SetDescription( whatmessage ); }          newexcp( const std::string & file, unsigned int lineNumber ) :          parentexcp( file, lineNumber )          { this->SetDescription( whatmessage ); }          itkOverrideGetNameOfClassMacro( newexcp );         };        }" \
                          "itkConceptMacro(thisName,thisConcept)=                   /* This class requires thisName                       in the form of thisConcept */" \
                          "std::numeric_limits=                   std::numeric_limits" \
                          "ITK_TYPENAME=                   typename" \
@@ -2167,7 +2167,6 @@ PREDEFINED             = "itkNotUsed(x)=" \
                          "size_t=vcl_size_t" \
                          "ITK_USE_FFTWD" \
                          "ITK_USE_FFTWF" \
-                         "ITK_USE_CONCEPT_CHECKING" \
                          "itkMacro_h" \
                          "ITK_LEGACY_REMOVE" \
                          "ITK_FUTURE_LEGACY_REMOVE" \
@@ -2176,7 +2175,6 @@ PREDEFINED             = "itkNotUsed(x)=" \
                          "ITK_NULLPTR=  nullptr " \
                          "ITK_NOEXCEPT= noexcept " \
                          "ITK_DISALLOW_COPY_AND_MOVE(type)=" \
-                         "ITK_DISALLOW_COPY_AND_ASSIGN(type)=" \
                          "ITK_FORCE_EXPORT_MACRO(X)="
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this

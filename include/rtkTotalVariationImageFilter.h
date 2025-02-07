@@ -62,11 +62,7 @@ public:
   itkNewMacro(Self);
 
   /** Runtime information support. */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(TotalVariationImageFilter);
-#else
-  itkTypeMacro(TotalVariationImageFilter, ImageToImageFilter);
-#endif
 
   /** Image related type alias. */
   using InputImagePointer = typename TInputImage::Pointer;
@@ -108,11 +104,9 @@ public:
   DataObjectPointer
   MakeOutput(DataObjectPointerArraySizeType output) override;
 
-#ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
   itkConceptMacro(InputHasNumericTraitsCheck, (itk::Concept::HasNumericTraits<PixelType>));
   // End concept checking
-#endif
 
   /** Use the image spacing information in calculations. Use this option if you
    *  want derivatives in physical space. Default is UseImageSpacingOn. */

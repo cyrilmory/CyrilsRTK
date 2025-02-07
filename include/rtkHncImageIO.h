@@ -25,7 +25,7 @@
 
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
 // SR: taken from
-//#include "msinttypes/stdint.h"
+// #include "msinttypes/stdint.h"
 #else
 #  include <cstdint>
 #endif
@@ -125,11 +125,7 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(HncImageIO);
-#else
-  itkTypeMacro(HncImageIO, itk::ImageIOBase);
-#endif
 
   /*-------- This part of the interface deals with reading data. ------ */
   void

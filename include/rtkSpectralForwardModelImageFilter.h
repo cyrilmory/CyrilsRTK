@@ -71,11 +71,7 @@ public:
   itkNewMacro(Self);
 
   /** Runtime information support. */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(SpectralForwardModelImageFilter);
-#else
-  itkTypeMacro(SpectralForwardModelImageFilter, InPlaceImageFilter);
-#endif
 
   /** Set/Get the incident spectrum input images */
   void

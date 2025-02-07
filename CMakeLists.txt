@@ -136,7 +136,14 @@ if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${RTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 endif()
 if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${RTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+  # Python builds CI workflows expects archives to be placed in the ITK lib
+  # directory. This makes sure that other remote modules that depends on RTK
+  # can link against the RTK libraries.
+  if (WRAP_ITK_INSTALL_COMPONENT_IDENTIFIER STREQUAL "PythonWheel")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ITK_DIR}/${CMAKE_INSTALL_LIBDIR})
+  else()
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${RTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+  endif()
 endif()
 
 #=========================================================
@@ -160,11 +167,14 @@ list(APPEND RTK_INCLUDE_DIRS
 # Include directories
 #=========================================================
 list(APPEND RTK_INCLUDE_DIRS
-  ${RTK_BINARY_DIR})
+  ${RTK_BINARY_DIR}/include)
 
 #=========================================================
 # Generate RTKConfig.cmake for the build tree.
 set(RTK_MODULE_PATH_CONFIG ${CMAKE_MODULE_PATH})
+
+# Add option to control the generation of RTK applications
+option(RTK_BUILD_APPLICATIONS "Build RTK applications" ON)
 
 set(RTK_EXPORT_CODE_BUILD "
 # The RTK version number
@@ -174,6 +184,9 @@ set(RTK_VERSION_PATCH ${RTK_VERSION_PATCH})
 
 # Whether the compiled version of RTK uses CUDA
 set(RTK_USE_CUDA ${RTK_USE_CUDA})
+
+# Whether RTK applications were built
+set(RTK_BUILD_APPLICATIONS ${RTK_BUILD_APPLICATIONS})
 
 if(RTK_USE_CUDA)
   find_package(CUDAToolkit)
@@ -189,6 +202,9 @@ set(RTK_VERSION_PATCH ${RTK_VERSION_PATCH})
 
 # Whether the compiled version of RTK uses CUDA
 set(RTK_USE_CUDA ${RTK_USE_CUDA})
+
+# Whether RTK applications were built
+set(RTK_BUILD_APPLICATIONS ${RTK_BUILD_APPLICATIONS})
 
 if(RTK_USE_CUDA)
   find_package(CUDAToolkit)
@@ -236,7 +252,7 @@ endif()
 # Propagate cmake options in a header file
 # Must be done after the external module configuration to make sure CudaCommon_VERSION is defined
 configure_file(${RTK_SOURCE_DIR}/rtkConfiguration.h.in
-  ${RTK_BINARY_DIR}/rtkConfiguration.h)
+  ${RTK_BINARY_DIR}/include/rtkConfiguration.h)
 
 # Install lpsolve headers
 install(FILES ${RTK_SOURCE_DIR}/utilities/lp_solve/lp_bit.h
@@ -266,7 +282,7 @@ install(FILES ${RTK_SOURCE_DIR}/utilities/lp_solve/lp_bit.h
 target_include_directories(lpsolve55 PUBLIC $<INSTALL_INTERFACE:${RTK_INSTALL_INCLUDE_DIR}/lpsolve>)
 
 # Install configuration file
-install(FILES ${RTK_BINARY_DIR}/rtkConfiguration.h DESTINATION ${RTK_INSTALL_INCLUDE_DIR})
+install(FILES ${RTK_BINARY_DIR}/include/rtkConfiguration.h DESTINATION ${RTK_INSTALL_INCLUDE_DIR})
 install(FILES ${RTK_SOURCE_DIR}/cmake/FindGengetopt.cmake
               ${RTK_SOURCE_DIR}/cmake/GetGitRevisionDescription.cmake
               ${RTK_SOURCE_DIR}/cmake/GetGitRevisionDescription.cmake.in
@@ -279,7 +295,7 @@ endif()
 # Build applications
 #=========================================================
 option(RTK_PROBE_EACH_FILTER "Probe each RTK filter in a global object and report times and memory used in RTK applications" OFF)
-option(RTK_BUILD_APPLICATIONS "Build RTK applications" ON)
+
 if(RTK_BUILD_APPLICATIONS)
   add_subdirectory(applications)
 endif()

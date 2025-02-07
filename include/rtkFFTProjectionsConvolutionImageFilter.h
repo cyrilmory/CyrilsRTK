@@ -71,11 +71,7 @@ public:
   static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
   /** Runtime information support. */
-#ifdef itkOverrideGetNameOfClassMacro
   itkOverrideGetNameOfClassMacro(FFTProjectionsConvolutionImageFilter);
-#else
-  itkTypeMacro(FFTProjectionsConvolutionImageFilter, ImageToImageFilter);
-#endif
 
   /**
    * Set/Get the greatest prime factor allowed on the size of the padded image.
@@ -117,9 +113,7 @@ public:
     }
   }
 
-#ifdef ITK_USE_CONCEPT_CHECKING
   itkConceptMacro(ImageDimensionCheck, (itk::Concept::SameDimensionOrMinusOne<Self::InputImageDimension, 3>));
-#endif
 
 protected:
   FFTProjectionsConvolutionImageFilter();

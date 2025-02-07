@@ -15,7 +15,7 @@ def setup(app):
 
 # -- Project information -----------------------------------------------------
 project = 'RTK'
-copyright = f'{date.today().year}, Simon Rit'
+copyright = f'{date.today().year}, RTK Consortium'
 author = 'RTK Consortium'
 
 # The full version, including alpha/beta/rc tags
@@ -61,6 +61,7 @@ html_theme_options = {
 html_static_path = []
 html_logo = "https://www.openrtk.org/opensourcelogos/rtk75.png"
 html_title = f"{project}'s documentation"
+html_favicon = "https://www.openrtk.org/RTK/img/rtk_favicon.ico"
 
 # -- Master document -------------------------------------------------
 master_doc = 'index'
