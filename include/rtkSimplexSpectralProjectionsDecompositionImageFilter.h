@@ -39,7 +39,7 @@ namespace rtk
 
 template <typename DecomposedProjectionsType,
           typename MeasuredProjectionsType,
-          typename IncidentSpectrumImageType = itk::VectorImage<float, 2>,
+          typename IncidentSpectrumImageType = itk::Image<float, 3>,
           typename DetectorResponseImageType = itk::Image<float, 2>,
           typename MaterialAttenuationsImageType = itk::Image<float, 2>>
 class ITK_TEMPLATE_EXPORT SimplexSpectralProjectionsDecompositionImageFilter

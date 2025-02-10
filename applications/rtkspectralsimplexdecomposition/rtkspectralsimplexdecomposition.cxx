@@ -37,7 +37,7 @@ main(int argc, char * argv[])
 
   using SpectralProjectionsType = itk::VectorImage<PixelValueType, Dimension>;
 
-  using IncidentSpectrumImageType = itk::VectorImage<PixelValueType, Dimension - 1>;
+  using IncidentSpectrumImageType = itk::Image<PixelValueType, Dimension>;
 
   using DetectorResponseImageType = itk::Image<PixelValueType, Dimension - 1>;
 
@@ -63,9 +63,9 @@ main(int argc, char * argv[])
   // Get parameters from the images
   const unsigned int NumberOfMaterials = materialAttenuations->GetLargestPossibleRegion().GetSize()[0];
   const unsigned int NumberOfSpectralBins = spectralProjection->GetVectorLength();
-  const unsigned int MaximumEnergy = incidentSpectrum->GetVectorLength();
+  const unsigned int MaximumEnergy = incidentSpectrum->GetLargestPossibleRegion().GetSize()[0];
 
-  // Read the thresholds on command line and check their number
+         // Read the thresholds on command line and check their number
   itk::VariableLengthVector<unsigned int> thresholds;
   thresholds.SetSize(NumberOfSpectralBins + 1);
   if (args_info.thresholds_given == NumberOfSpectralBins)
@@ -96,11 +96,11 @@ main(int argc, char * argv[])
                              << spectralProjection->GetPixel(indexSpect).Size() << ", should be "
                              << NumberOfSpectralBins);
 
-  IncidentSpectrumImageType::IndexType indexIncident;
-  indexIncident.Fill(0);
-  if (incidentSpectrum->GetPixel(indexIncident).Size() != MaximumEnergy)
-    itkGenericExceptionMacro(<< "Incident spectrum image has vector size "
-                             << incidentSpectrum->GetPixel(indexIncident).Size() << ", should be " << MaximumEnergy);
+  // IncidentSpectrumImageType::IndexType indexIncident;
+  // indexIncident.Fill(0);
+  // if (incidentSpectrum->GetPixel(indexIncident).Size() != MaximumEnergy)
+  //   itkGenericExceptionMacro(<< "Incident spectrum image has vector size "
+  //                            << incidentSpectrum->GetPixel(indexIncident).Size() << ", should be " << MaximumEnergy);
 
   if (detectorResponse->GetLargestPossibleRegion().GetSize()[0] != MaximumEnergy)
     itkGenericExceptionMacro(<< "Detector response image has "

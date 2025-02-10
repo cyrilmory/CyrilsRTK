@@ -314,7 +314,7 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
   Superclass::GenerateOutputInformation();
   this->m_NumberOfSpectralBins = this->GetInputMeasuredProjections()->GetVectorLength();
   this->m_NumberOfMaterials = this->GetInputDecomposedProjections()->GetVectorLength();
-  this->m_NumberOfEnergies = this->GetInputIncidentSpectrum()->GetVectorLength();
+  this->m_NumberOfEnergies = this->GetInputIncidentSpectrum()->GetLargestPossibleRegion().GetSize(0);
   this->GetOutput(2)->SetLargestPossibleRegion(this->GetInputDecomposedProjections()->GetLargestPossibleRegion());
   this->GetOutput(2)->SetVectorLength(this->m_NumberOfMaterials);
 }
@@ -341,14 +341,12 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
 
   typename IncidentSpectrumImageType::RegionType requested =
     this->GetInputIncidentSpectrum()->GetLargestPossibleRegion();
-  typename IncidentSpectrumImageType::IndexType indexRequested;
-  typename IncidentSpectrumImageType::SizeType  sizeRequested;
-  indexRequested.Fill(0);
-  sizeRequested.Fill(0);
+  typename IncidentSpectrumImageType::IndexType indexRequested = requested.GetIndex();
+  typename IncidentSpectrumImageType::SizeType  sizeRequested = requested.GetSize();
   for (unsigned int i = 0; i < IncidentSpectrumImageType::GetImageDimension() - 1; i++)
   {
-    indexRequested[i] = this->GetOutput()->GetRequestedRegion().GetIndex()[i];
-    sizeRequested[i] = this->GetOutput()->GetRequestedRegion().GetSize()[i];
+    indexRequested[i+1] = this->GetOutput()->GetRequestedRegion().GetIndex()[i];
+    sizeRequested[i+1] = this->GetOutput()->GetRequestedRegion().GetSize()[i];
   }
 
   requested.SetIndex(indexRequested);
@@ -445,10 +443,10 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
 
   typename IncidentSpectrumImageType::RegionType incidentSpectrumRegionForThread =
     this->GetInputIncidentSpectrum()->GetLargestPossibleRegion();
-  for (unsigned int dim = 0; dim < DecomposedProjectionsType::GetImageDimension() - 1; dim++)
+  for (unsigned int dim = 0; dim < IncidentSpectrumImageType::GetImageDimension() - 1; dim++)
   {
-    incidentSpectrumRegionForThread.SetIndex(dim, outputRegionForThread.GetIndex()[dim]);
-    incidentSpectrumRegionForThread.SetSize(dim, outputRegionForThread.GetSize()[dim]);
+    incidentSpectrumRegionForThread.SetIndex(dim + 1, outputRegionForThread.GetIndex()[dim]);
+    incidentSpectrumRegionForThread.SetSize(dim + 1, outputRegionForThread.GetSize()[dim]);
   }
   itk::ImageRegionConstIterator<IncidentSpectrumImageType> spectrumIt(this->GetInputIncidentSpectrum(),
                                                                       incidentSpectrumRegionForThread);
@@ -458,6 +456,18 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
   if (this->GetInputSecondIncidentSpectrum())
     secondSpectrumIt = itk::ImageRegionConstIterator<IncidentSpectrumImageType>(this->GetInputSecondIncidentSpectrum(),
                                                                                 incidentSpectrumRegionForThread);
+
+  // Instantiate a vnl_matrix for the high and low energy incident spectra (if DECT)
+  // or the single spectrum (if spectral) and set its size.
+  vnl_matrix<float> spectra;
+  if (this->GetInputSecondIncidentSpectrum()) // Dual energy CT
+  {
+    spectra.set_size(2, m_NumberOfEnergies);
+  }
+  else
+  {
+    spectra.set_size(1, m_NumberOfEnergies);
+  }
 
   while (!output0It.IsAtEnd())
   {
@@ -470,19 +480,22 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
         secondSpectrumIt.GoToBegin();
     }
 
-    // Build a vnl_matrix out of the high and low energy incident spectra (if DECT)
-    // or out of single spectrum (if spectral)
-    vnl_matrix<float> spectra;
+    // Fill in the spectra matrix
     if (this->GetInputSecondIncidentSpectrum()) // Dual energy CT
     {
-      spectra.set_size(2, m_NumberOfEnergies);
-      spectra.set_row(0, spectrumIt.Get().GetDataPointer());
-      spectra.set_row(1, secondSpectrumIt.Get().GetDataPointer());
+      for (int e = 0; e < m_NumberOfEnergies; e++) {
+        spectra.put(0, e, spectrumIt.Get());
+        spectra.put(1, e, secondSpectrumIt.Get());
+        ++spectrumIt;
+        ++secondSpectrumIt;
+      }
     }
     else
     {
-      spectra.set_size(1, m_NumberOfEnergies);
-      spectra.set_row(0, spectrumIt.Get().GetDataPointer());
+      for (int e = 0; e < m_NumberOfEnergies; e++) {
+        spectra.put(0, e, spectrumIt.Get());
+        ++spectrumIt;
+      }
     }
 
     // Pass the incident spectrum vector to cost function
@@ -540,9 +553,6 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
     // Move forward
     ++output0It;
     ++inIt;
-    ++spectrumIt;
-    if (this->GetInputSecondIncidentSpectrum())
-      ++secondSpectrumIt;
   }
 }
 

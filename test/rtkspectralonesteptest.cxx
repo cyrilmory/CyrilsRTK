@@ -45,7 +45,6 @@ main(int argc, char * argv[])
   using PhotonCountsPixelType = itk::Vector<DataType, nBins>;
 
   using MaterialProjectionsType = itk::VectorImage<DataType, Dimension>;
-  using vIncidentSpectrum = itk::VectorImage<DataType, Dimension - 1>;
   using VectorImageType = typename itk::VectorImage<DataType, Dimension>;
 
 #ifdef RTK_USE_CUDA
@@ -65,7 +64,6 @@ main(int argc, char * argv[])
 #endif
 
   using IncidentSpectrumReaderType = itk::ImageFileReader<IncidentSpectrumImageType>;
-  using vIncidentSpectrumReaderType = itk::ImageFileReader<vIncidentSpectrum>;
   using DetectorResponseReaderType = itk::ImageFileReader<DetectorResponseImageType>;
   using MaterialAttenuationsReaderType = itk::ImageFileReader<MaterialAttenuationsImageType>;
 
@@ -78,9 +76,9 @@ main(int argc, char * argv[])
   incidentSpectrumReader->SetFileName(argv[1]);
   incidentSpectrumReader->Update();
 
-  vIncidentSpectrumReaderType::Pointer vIncidentSpectrumReader = vIncidentSpectrumReaderType::New();
-  vIncidentSpectrumReader->SetFileName(argv[2]);
-  vIncidentSpectrumReader->Update();
+  // vIncidentSpectrumReaderType::Pointer vIncidentSpectrumReader = vIncidentSpectrumReaderType::New();
+  // vIncidentSpectrumReader->SetFileName(argv[2]);
+  // vIncidentSpectrumReader->Update();
 
   DetectorResponseReaderType::Pointer detectorResponseReader = DetectorResponseReaderType::New();
   detectorResponseReader->SetFileName(argv[3]);
@@ -235,11 +233,11 @@ main(int argc, char * argv[])
 
   // Apply spectral forward model to turn material projections into photon counts
   using ForwardModelFilterType =
-    rtk::SpectralForwardModelImageFilter<MaterialProjectionsType, vPhotonCountsType, vIncidentSpectrum>;
+    rtk::SpectralForwardModelImageFilter<MaterialProjectionsType, vPhotonCountsType, IncidentSpectrumImageType>;
   ForwardModelFilterType::Pointer forward = ForwardModelFilterType::New();
   forward->SetInputDecomposedProjections(composeProjs->GetOutput());
   forward->SetInputMeasuredProjections(vPhotonCounts);
-  forward->SetInputIncidentSpectrum(vIncidentSpectrumReader->GetOutput());
+  forward->SetInputIncidentSpectrum(incidentSpectrumReader->GetOutput());
   forward->SetDetectorResponse(detectorResponseReader->GetOutput());
   forward->SetMaterialAttenuations(materialAttenuationsReader->GetOutput());
   itk::VariableLengthVector<double> thresholds;

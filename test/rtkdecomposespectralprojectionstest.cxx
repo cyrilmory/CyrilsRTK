@@ -39,7 +39,7 @@ main(int argc, char * argv[])
 
   using SpectralProjectionsType = itk::VectorImage<PixelValueType, Dimension>;
 
-  using IncidentSpectrumImageType = itk::VectorImage<PixelValueType, Dimension - 1>;
+  using IncidentSpectrumImageType = itk::Image<PixelValueType, Dimension>;
   using IncidentSpectrumReaderType = itk::ImageFileReader<IncidentSpectrumImageType>;
 
   using DetectorResponseImageType = itk::Image<PixelValueType, Dimension - 1>;
