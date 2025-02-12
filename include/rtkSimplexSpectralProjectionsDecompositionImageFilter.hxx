@@ -66,6 +66,14 @@ SimplexSpectralProjectionsDecompositionImageFilter<
   m_LogTransformEachBin = false;
   m_GuessInitialization = false;
   m_IsSpectralCT = true;
+
+#ifndef ITK_FUTURE_LEGACY_REMOVE
+  // Instantiate the filters required in the overload of SetInputIncidentSpectrum
+  m_FlattenFilter = FlattenVectorFilterType::New();
+  m_FlattenSecondFilter = FlattenVectorFilterType::New();
+  m_PermuteFilter = PermuteFilterType::New();
+  m_PermuteSecondFilter = PermuteFilterType::New();
+#endif
 }
 
 template <typename DecomposedProjectionsType,
@@ -164,6 +172,54 @@ SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
 {
   this->SetInput("SecondIncidentSpectrum", const_cast<IncidentSpectrumImageType *>(SecondIncidentSpectrum));
 }
+
+#ifndef ITK_FUTURE_LEGACY_REMOVE
+template <typename DecomposedProjectionsType,
+          typename MeasuredProjectionsType,
+          typename IncidentSpectrumImageType,
+          typename DetectorResponseImageType,
+          typename MaterialAttenuationsImageType>
+void
+SimplexSpectralProjectionsDecompositionImageFilter<
+  DecomposedProjectionsType,
+  MeasuredProjectionsType,
+  IncidentSpectrumImageType,
+  DetectorResponseImageType,
+  MaterialAttenuationsImageType>::SetInputIncidentSpectrum(const VectorSpectrumImageType * IncidentSpectrum)
+{
+  this->m_FlattenFilter->SetInput(IncidentSpectrum);
+  this->m_PermuteFilter->SetInput(this->m_FlattenFilter->GetOutput());
+  typename PermuteFilterType::PermuteOrderArrayType order;
+  order[0] = 2;
+  order[1] = 0;
+  order[2] = 1;
+  this->m_PermuteFilter->SetOrder(order);
+  this->SetInputIncidentSpectrum(m_PermuteFilter->GetOutput());
+}
+
+template <typename DecomposedProjectionsType,
+          typename MeasuredProjectionsType,
+          typename IncidentSpectrumImageType,
+          typename DetectorResponseImageType,
+          typename MaterialAttenuationsImageType>
+void
+  SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
+                                                     MeasuredProjectionsType,
+                                                     IncidentSpectrumImageType,
+                                                     DetectorResponseImageType,
+                                                     MaterialAttenuationsImageType>::
+  SetInputSecondIncidentSpectrum(const VectorSpectrumImageType * SecondIncidentSpectrum)
+{
+  this->m_FlattenSecondFilter->SetInput(SecondIncidentSpectrum);
+  this->m_PermuteSecondFilter->SetInput(this->m_FlattenSecondFilter->GetOutput());
+  typename PermuteFilterType::PermuteOrderArrayType order;
+  order[0] = 2;
+  order[1] = 0;
+  order[2] = 1;
+  this->m_PermuteSecondFilter->SetOrder(order);
+  this->SetInputSecondIncidentSpectrum(m_PermuteSecondFilter->GetOutput());
+}
+#endif
 
 template <typename DecomposedProjectionsType,
           typename MeasuredProjectionsType,
@@ -342,7 +398,7 @@ SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
     return;
   inputPtr1->SetRequestedRegion(this->GetOutput()->GetRequestedRegion());
 
-  // Input 2 is the incident spectrum image (same dimension as a single projection)
+  // Input 2 is the incident spectrum image
   typename IncidentSpectrumImageType::Pointer inputPtr2 =
     const_cast<IncidentSpectrumImageType *>(this->GetInputIncidentSpectrum().GetPointer());
   if (!inputPtr2)
