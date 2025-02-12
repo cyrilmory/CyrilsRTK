@@ -151,7 +151,7 @@ namespace rtk
  * \ingroup RTK ReconstructionAlgorithm
  */
 
-template <typename TOutputImage, typename TPhotonCounts, typename TSpectrum>
+template <typename TOutputImage, typename TMeasuredProjections, typename TIncidentSpectrum>
 class ITK_TEMPLATE_EXPORT MechlemOneStepSpectralReconstructionFilter
   : public rtk::IterativeConeBeamReconstructionFilter<TOutputImage, TOutputImage>
 {
@@ -170,7 +170,7 @@ public:
   itkOverrideGetNameOfClassMacro(MechlemOneStepSpectralReconstructionFilter);
 
   /** Internal type alias and parameters */
-  static constexpr unsigned int nBins = TPhotonCounts::PixelType::Dimension;
+  static constexpr unsigned int nBins = TMeasuredProjections::PixelType::Dimension;
   static constexpr unsigned int nMaterials = TOutputImage::PixelType::Dimension;
   using dataType = typename TOutputImage::PixelType::ValueType;
 
@@ -197,9 +197,10 @@ public:
 
 #if !defined(ITK_WRAPPING_PARSER)
 #  ifdef RTK_USE_CUDA
-  typedef typename std::conditional<std::is_same<TOutputImage, CPUOutputImageType>::value,
-                                    WeidingerForwardModelImageFilter<TOutputImage, TPhotonCounts, TSpectrum>,
-                                    CudaWeidingerForwardModelImageFilter<TOutputImage, TPhotonCounts, TSpectrum>>::type
+  typedef typename std::conditional<
+    std::is_same<TOutputImage, CPUOutputImageType>::value,
+    WeidingerForwardModelImageFilter<TOutputImage, TMeasuredProjections, TIncidentSpectrum>,
+    CudaWeidingerForwardModelImageFilter<TOutputImage, TMeasuredProjections, TIncidentSpectrum>>::type
     WeidingerForwardModelType;
   typedef
     typename std::conditional<std::is_same<TOutputImage, CPUOutputImageType>::value,
@@ -211,7 +212,8 @@ public:
                                     CudaBackProjectionImageFilter<HessiansImageType>>::type
     CudaHessiansBackProjectionImageFilterType;
 #  else
-  using WeidingerForwardModelType = WeidingerForwardModelImageFilter<TOutputImage, TPhotonCounts, TSpectrum>;
+  using WeidingerForwardModelType =
+    WeidingerForwardModelImageFilter<TOutputImage, TMeasuredProjections, TIncidentSpectrum>;
   using CudaSingleComponentForwardProjectionImageFilterType =
     JosephForwardProjectionImageFilter<SingleComponentImageType, SingleComponentImageType>;
   using CudaHessiansBackProjectionImageFilterType = BackProjectionImageFilter<HessiansImageType, HessiansImageType>;
@@ -225,8 +227,8 @@ public:
 #if !defined(ITK_WRAPPING_PARSER)
   /** Filter type alias */
   using CastMaterialVolumesFilterType = itk::CastImageFilter<VectorImageType, TOutputImage>;
-  using CastPhotonCountsFilterType = itk::CastImageFilter<VectorImageType, TPhotonCounts>;
-  using ExtractPhotonCountsFilterType = itk::ExtractImageFilter<TPhotonCounts, TPhotonCounts>;
+  using CastMeasuredProjectionsFilterType = itk::CastImageFilter<VectorImageType, TMeasuredProjections>;
+  using ExtractMeasuredProjectionsFilterType = itk::ExtractImageFilter<TMeasuredProjections, TMeasuredProjections>;
   using AddFilterType = itk::AddImageFilter<GradientsImageType>;
   using SingleComponentForwardProjectionFilterType =
     rtk::ForwardProjectionImageFilter<SingleComponentImageType, SingleComponentImageType>;
@@ -243,8 +245,8 @@ public:
   using NewtonFilterType = rtk::GetNewtonUpdateImageFilter<GradientsImageType, HessiansImageType>;
   using MultiplyFilterType = itk::MultiplyImageFilter<TOutputImage, SingleComponentImageType>;
   using MultiplyGradientFilterType = itk::MultiplyImageFilter<GradientsImageType, SingleComponentImageType>;
-  using ReorderProjectionsFilterPhotonCountsType = rtk::ReorderProjectionsImageFilter<TPhotonCounts>;
-  using ReorderProjectionsFilterProjectionsWeightsType = rtk::ReorderProjectionsImageFilter<SingleComponentImageType>;
+  using ReorderMeasuredProjectionsFilterType = rtk::ReorderProjectionsImageFilter<TMeasuredProjections>;
+  using ReorderProjectionsWeightsFilterType = rtk::ReorderProjectionsImageFilter<SingleComponentImageType>;
 #endif
 
   /** Pass the geometry to all filters needing it */
@@ -269,11 +271,17 @@ public:
   void
   SetInputMaterialVolumes(const VectorImageType * materialVolumes);
   void
-  SetInputPhotonCounts(const TPhotonCounts * photonCounts);
+  SetInputMeasuredProjections(const TMeasuredProjections * measuredProjections);
   void
-  SetInputPhotonCounts(const VectorImageType * photonCounts);
+  SetInputMeasuredProjections(const VectorImageType * measuredProjections);
   void
-  SetInputSpectrum(const TSpectrum * spectrum);
+  SetInputIncidentSpectrum(const TIncidentSpectrum * incidentSpectrum);
+#ifndef ITK_FUTURE_LEGACY_REMOVE
+  void
+  SetInputPhotonCounts(const TMeasuredProjections * measuredProjections);
+  void
+  SetInputSpectrum(const TIncidentSpectrum * incidentSpectrum);
+#endif
   void
   SetSupportMask(const SingleComponentImageType * support);
   void
@@ -313,8 +321,8 @@ protected:
 #if !defined(ITK_WRAPPING_PARSER)
   /** Member pointers to the filters used internally (for convenience)*/
   typename CastMaterialVolumesFilterType::Pointer                  m_CastMaterialVolumesFilter;
-  typename CastPhotonCountsFilterType::Pointer                     m_CastPhotonCountsFilter;
-  typename ExtractPhotonCountsFilterType::Pointer                  m_ExtractPhotonCountsFilter;
+  typename CastMeasuredProjectionsFilterType::Pointer              m_CastMeasuredProjectionsFilter;
+  typename ExtractMeasuredProjectionsFilterType::Pointer           m_ExtractMeasuredProjectionsFilter;
   typename AddFilterType::Pointer                                  m_AddGradients;
   typename SingleComponentForwardProjectionFilterType::Pointer     m_SingleComponentForwardProjectionFilter;
   typename MaterialProjectionsSourceType::Pointer                  m_ProjectionsSource;
@@ -334,8 +342,8 @@ protected:
   typename MultiplyGradientFilterType::Pointer                     m_MultiplyRegulGradientsFilter;
   typename MultiplyGradientFilterType::Pointer                     m_MultiplyRegulHessiansFilter;
   typename MultiplyGradientFilterType::Pointer                     m_MultiplyGradientToBeBackprojectedFilter;
-  typename ReorderProjectionsFilterPhotonCountsType::Pointer       m_ReorderPhotonCountsFilter;
-  typename ReorderProjectionsFilterProjectionsWeightsType::Pointer m_ReorderProjectionsWeightsFilter;
+  typename ReorderMeasuredProjectionsFilterType::Pointer           m_ReorderMeasuredProjectionsFilter;
+  typename ReorderProjectionsWeightsFilterType::Pointer            m_ReorderProjectionsWeightsFilter;
 #endif
 
   /** The inputs of this filter have the same type but not the same meaning
@@ -355,10 +363,16 @@ protected:
   /** Getters for the inputs */
   typename TOutputImage::ConstPointer
   GetInputMaterialVolumes();
-  typename TPhotonCounts::ConstPointer
+  typename TMeasuredProjections::ConstPointer
+  GetInputMeasuredProjections();
+  typename TIncidentSpectrum::ConstPointer
+  GetInputIncidentSpectrum();
+#ifndef ITK_FUTURE_LEGACY_REMOVE
+  typename TMeasuredProjections::ConstPointer
   GetInputPhotonCounts();
-  typename TSpectrum::ConstPointer
+  typename TIncidentSpectrum::ConstPointer
   GetInputSpectrum();
+#endif
   typename SingleComponentImageType::ConstPointer
   GetSupportMask();
   typename SingleComponentImageType::ConstPointer

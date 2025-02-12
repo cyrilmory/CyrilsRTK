@@ -42,21 +42,21 @@ main(int argc, char * argv[])
   constexpr unsigned int nEnergies = 150;
   using DataType = float;
   using MaterialPixelType = itk::Vector<DataType, nMaterials>;
-  using PhotonCountsPixelType = itk::Vector<DataType, nBins>;
+  using MeasuredProjectionsPixelType = itk::Vector<DataType, nBins>;
 
   using MaterialProjectionsType = itk::VectorImage<DataType, Dimension>;
   using VectorImageType = typename itk::VectorImage<DataType, Dimension>;
 
 #ifdef RTK_USE_CUDA
   using MaterialVolumeType = itk::CudaImage<MaterialPixelType, Dimension>;
-  using PhotonCountsType = itk::CudaImage<PhotonCountsPixelType, Dimension>;
+  using MeasuredProjectionsType = itk::CudaImage<MeasuredProjectionsPixelType, Dimension>;
   using IncidentSpectrumImageType = itk::CudaImage<DataType, Dimension>;
   using DetectorResponseImageType = itk::CudaImage<DataType, Dimension - 1>;
   using MaterialAttenuationsImageType = itk::CudaImage<DataType, Dimension - 1>;
   using SingleComponentImageType = itk::CudaImage<DataType, Dimension>;
 #else
   using MaterialVolumeType = itk::Image<MaterialPixelType, Dimension>;
-  using PhotonCountsType = itk::Image<PhotonCountsPixelType, Dimension>;
+  using MeasuredProjectionsType = itk::Image<MeasuredProjectionsPixelType, Dimension>;
   using IncidentSpectrumImageType = itk::Image<DataType, Dimension>;
   using DetectorResponseImageType = itk::Image<DataType, Dimension - 1>;
   using MaterialAttenuationsImageType = itk::Image<DataType, Dimension - 1>;
@@ -69,7 +69,7 @@ main(int argc, char * argv[])
 
   // Cast filters to convert between vector image types
   using CastMaterialVolumesFilterType = itk::CastImageFilter<MaterialVolumeType, VectorImageType>;
-  using CastPhotonCountsFilterType = itk::CastImageFilter<VectorImageType, PhotonCountsType>;
+  using CastMeasuredProjectionsFilterType = itk::CastImageFilter<VectorImageType, MeasuredProjectionsType>;
 
   // Read all inputs
   IncidentSpectrumReaderType::Pointer incidentSpectrumReader = IncidentSpectrumReaderType::New();
@@ -171,16 +171,16 @@ main(int argc, char * argv[])
   projectionsSource->Update();
 
   // Create a vectorImage of blank photon counts
-  using vPhotonCountsType = itk::VectorImage<DataType, Dimension>;
-  vPhotonCountsType::Pointer vPhotonCounts = vPhotonCountsType::New();
-  vPhotonCounts->CopyInformation(projectionsSource->GetOutput());
-  vPhotonCounts->SetVectorLength(nBins);
-  vPhotonCounts->SetRegions(vPhotonCounts->GetLargestPossibleRegion());
-  vPhotonCounts->Allocate();
+  using vMeasuredProjectionsType = itk::VectorImage<DataType, Dimension>;
+  vMeasuredProjectionsType::Pointer vMeasuredProjections = vMeasuredProjectionsType::New();
+  vMeasuredProjections->CopyInformation(projectionsSource->GetOutput());
+  vMeasuredProjections->SetVectorLength(nBins);
+  vMeasuredProjections->SetRegions(vMeasuredProjections->GetLargestPossibleRegion());
+  vMeasuredProjections->Allocate();
   itk::VariableLengthVector<DataType> vZeros;
   vZeros.SetSize(nBins);
   vZeros.Fill(0);
-  vPhotonCounts->FillBuffer(vZeros);
+  vMeasuredProjections->FillBuffer(vZeros);
 
   // Geometry object
   using GeometryType = rtk::ThreeDCircularProjectionGeometry;
@@ -233,10 +233,10 @@ main(int argc, char * argv[])
 
   // Apply spectral forward model to turn material projections into photon counts
   using ForwardModelFilterType =
-    rtk::SpectralForwardModelImageFilter<MaterialProjectionsType, vPhotonCountsType, IncidentSpectrumImageType>;
+    rtk::SpectralForwardModelImageFilter<MaterialProjectionsType, vMeasuredProjectionsType, IncidentSpectrumImageType>;
   ForwardModelFilterType::Pointer forward = ForwardModelFilterType::New();
   forward->SetInputDecomposedProjections(composeProjs->GetOutput());
-  forward->SetInputMeasuredProjections(vPhotonCounts);
+  forward->SetInputMeasuredProjections(vMeasuredProjections);
   forward->SetInputIncidentSpectrum(incidentSpectrumReader->GetOutput());
   forward->SetDetectorResponse(detectorResponseReader->GetOutput());
   forward->SetMaterialAttenuations(materialAttenuationsReader->GetOutput());
@@ -254,8 +254,8 @@ main(int argc, char * argv[])
 
   // Convert the itk::VectorImage<> returned by "forward" into
   // an itk::Image<itk::Vector<>>
-  typename CastPhotonCountsFilterType::Pointer castPhotonCounts = CastPhotonCountsFilterType::New();
-  castPhotonCounts->SetInput(forward->GetOutput());
+  typename CastMeasuredProjectionsFilterType::Pointer castMeasuredProjections = CastMeasuredProjectionsFilterType::New();
+  castMeasuredProjections->SetInput(forward->GetOutput());
 
   // Read the material attenuations image as a matrix
   MaterialAttenuationsImageType::IndexType indexMat;
@@ -275,12 +275,12 @@ main(int argc, char * argv[])
     rtk::SpectralBinDetectorResponse<DataType>(detectorResponseReader->GetOutput(), thresholds, nEnergies);
 
   // Reconstruct using Mechlem
-  using MechlemType =
-    rtk::MechlemOneStepSpectralReconstructionFilter<MaterialVolumeType, PhotonCountsType, IncidentSpectrumImageType>;
+  using MechlemType = rtk::
+    MechlemOneStepSpectralReconstructionFilter<MaterialVolumeType, MeasuredProjectionsType, IncidentSpectrumImageType>;
   MechlemType::Pointer mechlemOneStep = MechlemType::New();
   mechlemOneStep->SetForwardProjectionFilter(MechlemType::FP_JOSEPH); // Joseph
   mechlemOneStep->SetInputMaterialVolumes(materialVolumeSource->GetOutput());
-  mechlemOneStep->SetInputPhotonCounts(castPhotonCounts->GetOutput());
+  mechlemOneStep->SetInputMeasuredProjections(castMeasuredProjections->GetOutput());
   mechlemOneStep->SetInputSpectrum(incidentSpectrumReader->GetOutput());
   mechlemOneStep->SetBinnedDetectorResponse(drm);
   mechlemOneStep->SetMaterialAttenuations(materialAttenuationsMatrix);
@@ -340,8 +340,8 @@ main(int argc, char * argv[])
   castMaterials->SetInput(materialVolumeSource->GetOutput());
   mechlemOneStep->SetInputMaterialVolumes(castMaterials->GetOutput());
 
-  // Remove the cast from itkVectorImage, to test the overloaded SetInputPhotonCounts method
-  mechlemOneStep->SetInputPhotonCounts(forward->GetOutput());
+  // Remove the cast from itkVectorImage, to test the overloaded SetInputMeasuredProjections method
+  mechlemOneStep->SetInputMeasuredProjections(forward->GetOutput());
   TRY_AND_EXIT_ON_ITK_EXCEPTION(mechlemOneStep->Update());
 
   CheckVectorImageQuality<MaterialVolumeType>(mechlemOneStep->GetOutput(), composeVols->GetOutput(), 0.08, 23, 2.0);
