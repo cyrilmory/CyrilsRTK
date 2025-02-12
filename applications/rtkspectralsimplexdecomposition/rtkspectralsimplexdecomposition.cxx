@@ -65,7 +65,7 @@ main(int argc, char * argv[])
   const unsigned int NumberOfSpectralBins = spectralProjection->GetVectorLength();
   const unsigned int MaximumEnergy = incidentSpectrum->GetLargestPossibleRegion().GetSize()[0];
 
-         // Read the thresholds on command line and check their number
+  // Read the thresholds on command line and check their number
   itk::VariableLengthVector<unsigned int> thresholds;
   thresholds.SetSize(NumberOfSpectralBins + 1);
   if (args_info.thresholds_given == NumberOfSpectralBins)

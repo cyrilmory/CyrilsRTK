@@ -203,12 +203,12 @@ template <typename DecomposedProjectionsType,
           typename DetectorResponseImageType,
           typename MaterialAttenuationsImageType>
 void
-  SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
-                                                     MeasuredProjectionsType,
-                                                     IncidentSpectrumImageType,
-                                                     DetectorResponseImageType,
-                                                     MaterialAttenuationsImageType>::
-  SetInputSecondIncidentSpectrum(const VectorSpectrumImageType * SecondIncidentSpectrum)
+SimplexSpectralProjectionsDecompositionImageFilter<
+  DecomposedProjectionsType,
+  MeasuredProjectionsType,
+  IncidentSpectrumImageType,
+  DetectorResponseImageType,
+  MaterialAttenuationsImageType>::SetInputSecondIncidentSpectrum(const VectorSpectrumImageType * SecondIncidentSpectrum)
 {
   this->m_FlattenSecondFilter->SetInput(SecondIncidentSpectrum);
   this->m_PermuteSecondFilter->SetInput(this->m_FlattenSecondFilter->GetOutput());
@@ -410,8 +410,8 @@ SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
   typename IncidentSpectrumImageType::SizeType  sizeRequested = requested.GetSize();
   for (unsigned int i = 0; i < IncidentSpectrumImageType::GetImageDimension() - 1; i++)
   {
-    indexRequested[i+1] = this->GetOutput()->GetRequestedRegion().GetIndex()[i];
-    sizeRequested[i+1] = this->GetOutput()->GetRequestedRegion().GetSize()[i];
+    indexRequested[i + 1] = this->GetOutput()->GetRequestedRegion().GetIndex()[i];
+    sizeRequested[i + 1] = this->GetOutput()->GetRequestedRegion().GetSize()[i];
   }
 
   inputPtr2->SetRequestedRegion(requested);
@@ -560,7 +560,8 @@ SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
     if (this->GetInputSecondIncidentSpectrum()) // Dual energy CT
     {
       spectra.set_size(2, m_NumberOfEnergies);
-      for (int e = 0; e < m_NumberOfEnergies; e++) {
+      for (int e = 0; e < m_NumberOfEnergies; e++)
+      {
         spectra.put(0, e, spectrumIt.Get());
         spectra.put(1, e, secondSpectrumIt.Get());
         ++spectrumIt;
@@ -570,7 +571,8 @@ SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
     else
     {
       spectra.set_size(1, m_NumberOfEnergies);
-      for (int e = 0; e < m_NumberOfEnergies; e++) {
+      for (int e = 0; e < m_NumberOfEnergies; e++)
+      {
         spectra.put(0, e, spectrumIt.Get());
         ++spectrumIt;
       }

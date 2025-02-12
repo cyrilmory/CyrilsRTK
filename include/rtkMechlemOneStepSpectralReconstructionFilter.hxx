@@ -87,8 +87,8 @@ MechlemOneStepSpectralReconstructionFilter<TOutputImage, TMeasuredProjections, T
 
 template <class TOutputImage, class TMeasuredProjections, class TIncidentSpectrum>
 void
-MechlemOneStepSpectralReconstructionFilter<TOutputImage, TMeasuredProjections, TIncidentSpectrum>::SetInputMaterialVolumes(
-  const VectorImageType * variableLengthVectorMaterialVolumes)
+MechlemOneStepSpectralReconstructionFilter<TOutputImage, TMeasuredProjections, TIncidentSpectrum>::
+  SetInputMaterialVolumes(const VectorImageType * variableLengthVectorMaterialVolumes)
 {
   m_CastMaterialVolumesFilter->SetInput(variableLengthVectorMaterialVolumes);
   this->SetNthInput(0, const_cast<TOutputImage *>(m_CastMaterialVolumesFilter->GetOutput()));
@@ -104,8 +104,8 @@ MechlemOneStepSpectralReconstructionFilter<TOutputImage, TMeasuredProjections, T
 
 template <class TOutputImage, class TMeasuredProjections, class TIncidentSpectrum>
 void
-MechlemOneStepSpectralReconstructionFilter<TOutputImage, TMeasuredProjections, TIncidentSpectrum>::SetInputMeasuredProjections(
-  const VectorImageType * variableLengthVectorMeasuredProjections)
+MechlemOneStepSpectralReconstructionFilter<TOutputImage, TMeasuredProjections, TIncidentSpectrum>::
+  SetInputMeasuredProjections(const VectorImageType * variableLengthVectorMeasuredProjections)
 {
   m_CastMeasuredProjectionsFilter->SetInput(variableLengthVectorMeasuredProjections);
   this->SetNthInput(1, const_cast<TMeasuredProjections *>(m_CastMeasuredProjectionsFilter->GetOutput()));

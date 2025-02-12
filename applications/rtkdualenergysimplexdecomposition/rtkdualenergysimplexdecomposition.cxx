@@ -72,7 +72,8 @@ main(int argc, char * argv[])
   materialAttenuationsReader->Update();
 
   // Get parameters from the images
-  const unsigned int MaximumEnergy = incidentSpectrumReaderHighEnergy->GetOutput()->GetLargestPossibleRegion().GetSize(0);
+  const unsigned int MaximumEnergy =
+    incidentSpectrumReaderHighEnergy->GetOutput()->GetLargestPossibleRegion().GetSize(0);
 
   // If the detector response is given by the user, use it. Otherwise, assume it is included in the
   // incident spectrum, and fill the response with ones

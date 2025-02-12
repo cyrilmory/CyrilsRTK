@@ -118,12 +118,12 @@ template <typename DecomposedProjectionsType,
           typename DetectorResponseImageType,
           typename MaterialAttenuationsImageType>
 void
-SpectralForwardModelImageFilter<
-  DecomposedProjectionsType,
-  MeasuredProjectionsType,
-  IncidentSpectrumImageType,
-  DetectorResponseImageType,
-  MaterialAttenuationsImageType>::SetInputIncidentSpectrum(const VectorSpectrumImageType * IncidentSpectrum)
+SpectralForwardModelImageFilter<DecomposedProjectionsType,
+                                MeasuredProjectionsType,
+                                IncidentSpectrumImageType,
+                                DetectorResponseImageType,
+                                MaterialAttenuationsImageType>::SetInputIncidentSpectrum(const VectorSpectrumImageType *
+                                                                                           IncidentSpectrum)
 {
   this->m_FlattenFilter->SetInput(IncidentSpectrum);
   this->m_PermuteFilter->SetInput(this->m_FlattenFilter->GetOutput());
@@ -141,12 +141,12 @@ template <typename DecomposedProjectionsType,
           typename DetectorResponseImageType,
           typename MaterialAttenuationsImageType>
 void
-  SpectralForwardModelImageFilter<DecomposedProjectionsType,
-                                  MeasuredProjectionsType,
-                                  IncidentSpectrumImageType,
-                                  DetectorResponseImageType,
-                                  MaterialAttenuationsImageType>::
-  SetInputSecondIncidentSpectrum(const VectorSpectrumImageType * SecondIncidentSpectrum)
+SpectralForwardModelImageFilter<
+  DecomposedProjectionsType,
+  MeasuredProjectionsType,
+  IncidentSpectrumImageType,
+  DetectorResponseImageType,
+  MaterialAttenuationsImageType>::SetInputSecondIncidentSpectrum(const VectorSpectrumImageType * SecondIncidentSpectrum)
 {
   this->m_FlattenSecondFilter->SetInput(SecondIncidentSpectrum);
   this->m_PermuteSecondFilter->SetInput(this->m_FlattenSecondFilter->GetOutput());
@@ -401,8 +401,8 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
   typename IncidentSpectrumImageType::SizeType  sizeRequested = requested.GetSize();
   for (unsigned int i = 0; i < IncidentSpectrumImageType::GetImageDimension() - 1; i++)
   {
-    indexRequested[i+1] = this->GetOutput()->GetRequestedRegion().GetIndex()[i];
-    sizeRequested[i+1] = this->GetOutput()->GetRequestedRegion().GetSize()[i];
+    indexRequested[i + 1] = this->GetOutput()->GetRequestedRegion().GetIndex()[i];
+    sizeRequested[i + 1] = this->GetOutput()->GetRequestedRegion().GetSize()[i];
   }
 
   requested.SetIndex(indexRequested);
@@ -539,7 +539,8 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
     // Fill in the spectra matrix
     if (this->GetInputSecondIncidentSpectrum()) // Dual energy CT
     {
-      for (int e = 0; e < m_NumberOfEnergies; e++) {
+      for (int e = 0; e < m_NumberOfEnergies; e++)
+      {
         spectra.put(0, e, spectrumIt.Get());
         spectra.put(1, e, secondSpectrumIt.Get());
         ++spectrumIt;
@@ -548,7 +549,8 @@ SpectralForwardModelImageFilter<DecomposedProjectionsType,
     }
     else
     {
-      for (int e = 0; e < m_NumberOfEnergies; e++) {
+      for (int e = 0; e < m_NumberOfEnergies; e++)
+      {
         spectra.put(0, e, spectrumIt.Get());
         ++spectrumIt;
       }

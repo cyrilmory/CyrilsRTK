@@ -254,7 +254,8 @@ main(int argc, char * argv[])
 
   // Convert the itk::VectorImage<> returned by "forward" into
   // an itk::Image<itk::Vector<>>
-  typename CastMeasuredProjectionsFilterType::Pointer castMeasuredProjections = CastMeasuredProjectionsFilterType::New();
+  typename CastMeasuredProjectionsFilterType::Pointer castMeasuredProjections =
+    CastMeasuredProjectionsFilterType::New();
   castMeasuredProjections->SetInput(forward->GetOutput());
 
   // Read the material attenuations image as a matrix
@@ -331,11 +332,15 @@ main(int argc, char * argv[])
 #endif
 
 #ifdef RTK_USE_CUDA
-  std::cout << "\n\n****** Case 5: CUDA voxel-based Backprojector, 4 subsets, with regularization, itkVectorImage inputs ******" << std::endl;
+  std::cout
+    << "\n\n****** Case 5: CUDA voxel-based Backprojector, 4 subsets, with regularization, itkVectorImage inputs ******"
+    << std::endl;
 #else
-  std::cout << "\n\n****** Case 4: Voxel-based Backprojector, 4 subsets, with regularization, itkVectorImage inputs ******" << std::endl;
+  std::cout
+    << "\n\n****** Case 4: Voxel-based Backprojector, 4 subsets, with regularization, itkVectorImage inputs ******"
+    << std::endl;
 #endif
-  //Add a cast to itkVectorImage, to test the overloaded SetInputMaterialVolumes method
+  // Add a cast to itkVectorImage, to test the overloaded SetInputMaterialVolumes method
   typename CastMaterialVolumesFilterType::Pointer castMaterials = CastMaterialVolumesFilterType::New();
   castMaterials->SetInput(materialVolumeSource->GetOutput());
   mechlemOneStep->SetInputMaterialVolumes(castMaterials->GetOutput());
