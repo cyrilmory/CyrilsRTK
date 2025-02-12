@@ -580,9 +580,6 @@ SimplexSpectralProjectionsDecompositionImageFilter<DecomposedProjectionsType,
     ++output2It;
     ++inputIt;
     ++spectralProjIt;
-    ++spectrumIt;
-    if (this->GetInputSecondIncidentSpectrum())
-      ++secondSpectrumIt;
   }
 }
 
