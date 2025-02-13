@@ -231,7 +231,7 @@ main(int argc, char * argv[])
   using VectorImageType = itk::VectorImage<PixelValueType, Dimension - 1>;
   using VectorSpectrumReaderType = itk::ImageFileReader<VectorImageType>;
   VectorSpectrumReaderType::Pointer vectorSpectrumReader = VectorSpectrumReaderType::New();
-  vectorSpectrumReader->SetFileName(argv[1]);
+  vectorSpectrumReader->SetFileName(argv[4]);
   vectorSpectrumReader->Update();
   forward->SetInputIncidentSpectrum(vectorSpectrumReader->GetOutput());
   simplex->SetInputIncidentSpectrum(vectorSpectrumReader->GetOutput());
